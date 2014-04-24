@@ -15,6 +15,7 @@ Basically -
  * londiste add-table --all # on existing master
  * shut down postgres on new replica
  * move recovery.conf on new replica to recovery.conf.bak
+ * restart postgres with non-replica config
  * drop any views that fails pg_upgrade -c with internal knowledge of pg_ tables.
  * use new postgres version's initdb to create new data dir (ubuntu does this for you)
  * run pg_upgrade -c (and other options as --help will explain)
