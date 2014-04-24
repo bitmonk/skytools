@@ -1,0 +1,29 @@
+= Concurrently upgrading and migrating a non-PostGIS database from streaming replication to Londiste =
+
+This howto assumes familiarity with building a 2-node replication with londiste3.
+
+Basically -
+
+ * if possible, add a new replica to your streaming replication at your source version
+ * this replica can be made by shutting off your existing replica and rsync-ing its' pgdata dir to a new host
+ * before doing this, make sure your streaming replication master's wal_keep_segments equal a time larger than you expect database maintenance to require, I recommend keeping slightly more than a day
+ * build londiste 3.2 and configure disabled pgqd and londiste_root services on the existing master
+ * build londiste 3.2 and configure a disabled londiste_leaf service on the new replica host, which should be currently receiving streaming replication
+ * start / enable the pgqd service on the existing master
+ * londiste3 create-root on the existing master
+ * start / enable the londiste_root worker process on the existing master
+ * londiste add-table --all # on existing master
+ * shut down postgres on new replica
+ * move recovery.conf on new replica to recovery.conf.bak
+ * drop any views that fails pg_upgrade -c with internal knowledge of pg_ tables.
+ * use new postgres version's initdb to create new data dir (ubuntu does this for you)
+ * run pg_upgrade -c (and other options as --help will explain)
+ * run pg_upgrade, optionally with -k for a fast upgrade (this will link old db dir files into new db dir to save on disk io during upgrade, but will destroy the original data if it fails, and should only be run on a new replica being brought up)
+ * drop all pgq-related schemas, the new londiste master's configuration, which is stored in the db (meaning the existing replica is now also a potential substitute londiste master), has been sent over streaming replication.
+ * run londiste3 create-leaf
+ * run londiste3 worker
+ * run londiste3 add-table [--all or only some, the latter being one of londiste's advantages]
+ * run londiste3 status
+
+
+
