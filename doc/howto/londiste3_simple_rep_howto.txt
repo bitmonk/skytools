@@ -149,12 +149,14 @@ pgbench -T 120 -c 5 l3simple -f /tmp/throttled.pgbench
 The /tmp/throttled.pgbench contains the standard pgbench workload, except that
 there are random length waits between commands.
 
-Now add all the tables to replication, first on root node and then on the leaf:
+Now add all the tables and sequences to replication, first on root node and then on the leaf:
 
 Run command :
 ----
 londiste3 st3simple/st3_l3simple_primary.ini add-table --all
+londiste3 st3simple/st3_l3simple_primary.ini add-seq --all
 londiste3 st3simple/st3_l3simple_leaf.ini add-table --all
+londiste3 st3simple/st3_l3simple_leaf.ini add-seq --all
 ----
 
 
